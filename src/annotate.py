@@ -1,7 +1,7 @@
 import cv2
 
 
-def draw_matched_ingredients(img, ingredient_records):
+def annotate_matched_ingredients(img, ingredient_records):
     output_img = img.copy()
 
     for ingredient in ingredient_records:
