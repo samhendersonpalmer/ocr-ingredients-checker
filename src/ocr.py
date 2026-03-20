@@ -6,7 +6,7 @@ import streamlit as st
 @st.cache_resource
 def load_ocr_model(model_dir):
     reader = easyocr.Reader(
-        "en",
+        ["en"],
         model_storage_directory=str(model_dir),
         gpu=False,
     )
