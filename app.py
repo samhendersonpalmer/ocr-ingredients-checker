@@ -1,14 +1,30 @@
 import streamlit as st
+import easyocr
+import cv2
+import numpy as np
+from PIL import Image
+import re
 
-st.set_page_config(page_title="AllergyScanner", page_icon="img/logo.png")
+ALLERGEN_LIST = ["Coconut oil", "Beeswax", "Tocopherol", "Paraben"]
 
-col1, col2, col3 = st.columns([4, 1, 1], vertical_alignment="top")
+
+@st.cache_resource
+def load_ocr_model():
+    model_path = "models/easyocr"
+    reader = easyocr.Reader(["en"], model_storage_directory=model_path, gpu=False)
+    return reader
+
+
+reader = load_ocr_model()
+
+st.set_page_config(page_title="AllergyScanner", page_icon="assets/logo.png")
+
+col1, col2 = st.columns([5, 1], vertical_alignment="center")
 
 with col1:
-    st.markdown('# Allergy:color[Scanner]{foreground = "#215F9A"}')
-
-with col3:
-    st.image("img/logo.png")
+    st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
+with col2:
+    st.image("assets/logo.png", width=90)
 
 
 st.markdown(
@@ -20,16 +36,130 @@ st.markdown(
 
 st.space()
 
+
+def normalize_text(text):
+    text = text.lower().strip()
+    text = re.sub(r"[^\w\s-]", "", text)
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
+def ocr_to_word_records(ocr_result):
+    word_records = []
+
+    for bbox, text, confidence in ocr_result:
+        # x and y coordinates of top_left rectangle
+        top_left = tuple((int(val) for val in bbox[0]))
+        # x and y coordinates of bottom right rectangle
+        bottom_right = tuple((int(val) for val in bbox[2]))
+
+        word_records.append(
+            {
+                "raw_text": text,
+                "clean_text": normalize_text(text),
+                "top_left": top_left,
+                "bottom_right": bottom_right,
+            }
+        )
+
+    return word_records
+
+
+def is_delimiter_only(text):
+    return text.strip() in DELIMITERS
+
+
+def ends_with_delimiter(text):
+    text = text.strip()
+    return len(text) > 0 and text[-1] in DELIMITERS
+
+
+def word_records_to_ingredient_records(word_records):
+    ingredients = []
+
+    current_ingredient = []
+    current_ingredient_text = []
+
+    for token in word_records:
+        raw_text = token["raw_text"]  # For spotting boundaries between ingredients
+        clean_text = token["clean_text"]  # For matching to allergen list
+
+        # This prevents tokens being appended if they're just ";"
+        if clean_text:
+            # Creating list of current ingredients before appending
+            current_ingredient_text.append(clean_text)
+
+            # For drawing bounding box of each ingredient token
+            current_ingredient.append(
+                {
+                    "raw_text": raw_text,
+                    "top_left": token["top_left"],
+                    "bottom_right": token["bottom_right"],
+                }
+            )
+
+        # Once we get to a token that ends with a delimiter or is a solo delimiter we append and restart
+        if ends_with_delimiter(raw_text) or is_delimiter_only(raw_text):
+            full_current_ingredient_text = " ".join(current_ingredient_text).strip()
+            ingredients.append(
+                {
+                    "ingredient_text": full_current_ingredient_text,
+                    "words": current_ingredient.copy(),
+                }
+            )
+            current_ingredient = []
+            current_ingredient_text = []
+    # Fallback in case there is no delimiter at the end of the ingredients list
+    if current_ingredient:
+        full_current_ingredient_text = " ".join(current_ingredient_text).strip()
+        ingredients.append(
+            {
+                "ingredient_text": full_current_ingredient_text,
+                "words": current_ingredient.copy(),
+            }
+        )
+        current_ingredient = []
+        current_ingredient_text = []
+
+    return ingredients
+
+
+def normalize_allergen_list(allergen_list):
+    return {normalize_text(allergen) for allergen in allergen_list}
+
+
+def mark_matching_ingredients(ingredient_records, normalized_allergens):
+    for ingredient in ingredient_records:
+        # Does any user defined allergen match this ingredient
+        ingredient["is_match"] = any(
+            allergen in ingredient["ingredient_text"]
+            for allergen in normalized_allergens
+        )
+    return ingredient_records
+
+
+def draw_matched_ingredients(img, ingredient_records):
+    output_img = img.copy()
+
+    for ingredient in ingredient_records:
+        if ingredient["is_match"]:
+            for word in ingredient["words"]:
+                output_img = cv2.rectangle(
+                    output_img, word["top_left"], word["bottom_right"], (0, 255, 0), 2
+                )
+    return output_img
+
+
 tab1, tab2 = st.tabs(["1. Select your allergens", "2. Scan ingredients"])
 
 with tab1:
     st.subheader("1. Select your contact allergens")
 
-    st.multiselect(
+    selected_allergens = st.multiselect(
         label="All contact allergens",
         label_visibility="hidden",
         placeholder="Type to search",
-        options=["Paraben mix", "Propolis", "Bronopol"],
+        options=ALLERGEN_LIST,
     )
 
 with tab2:
@@ -42,4 +172,22 @@ with tab2:
     )
 
     if uploaded_file is not None:
-        st.image(uploaded_file)
+        input_image = Image.open(uploaded_file)
+
+        with st.spinner("Scanning image"):
+            result = reader.readtext(
+                input_image, width_ths=0, adjust_contrast=0.5, paragraph=False
+            )
+            img = np.array(input_image)
+
+            DELIMITERS = {",", ";", ":"}
+
+            outputocr = ocr_to_word_records(result)
+            ingredients = word_records_to_ingredient_records(outputocr)
+            normalised_allergens = normalize_allergen_list(selected_allergens)
+            ingredients_match = mark_matching_ingredients(
+                ingredients, normalised_allergens
+            )
+            output_img = draw_matched_ingredients(img, ingredients_match)
+
+            st.image(output_img)
