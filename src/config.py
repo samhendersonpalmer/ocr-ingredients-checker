@@ -9,5 +9,3 @@ LOGO_PATH = BASE_DIR / "assets" / "logo.png"
 ALLERGEN_LIST = ["Coconut oil", "Beeswax", "Tocopherol", "Paraben"]
 
 DELIMITERS = {",", ";", ":"}
-
-OCR_LANGUAGES = ["en"]
