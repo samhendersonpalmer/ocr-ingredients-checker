@@ -30,6 +30,19 @@ def render_header():
     )
 
 
+def render_allergen_tab():
+    st.subheader("1. Select your contact allergens")
+
+    selected_allergens = st.multiselect(
+        label="All contact allergens",
+        label_visibility="hidden",
+        placeholder="Type to search",
+        options=ALLERGEN_LIST,
+    )
+
+    return selected_allergens
+
+
 tab1, tab2 = st.tabs(["1. Select your allergens", "2. Scan ingredients"])
 
 with tab1:
