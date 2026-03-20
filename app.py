@@ -1,11 +1,19 @@
-import streamlit as st
-import easyocr
-import cv2
 import numpy as np
+import streamlit as st
 from PIL import Image
-import re
 
-ALLERGEN_LIST = ["Coconut oil", "Beeswax", "Tocopherol", "Paraben"]
+from src.config import (
+    ALLERGEN_LIST,
+    DELIMITERS,
+    FAVICON_PATH,
+    LOGO_PATH,
+    MODEL_DIR,
+    OCR_LANGUAGES,
+)
+from src.annotate import draw_matched_ingredients
+from src.matching import flag_matching_ingredients, normalize_allergen_list
+from src.ocr import load_ocr_model, ocr_to_word_records, run_ocr
+from src.preprocessing import normalize_text, word_records_to_ingredient_records
 
 
 @st.cache_resource
