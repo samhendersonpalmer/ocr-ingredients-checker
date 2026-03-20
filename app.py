@@ -96,44 +96,13 @@ def render_scan_tab(reader, selected_allergens):
 # MAIN #
 reader = load_ocr_model(MODEL_DIR)
 
+render_header()
+
+st.space()
+
 tab1, tab2 = st.tabs(["1. Select your allergens", "2. Scan ingredients"])
 
 with tab1:
-    st.subheader("1. Select your contact allergens")
-
-    selected_allergens = st.multiselect(
-        label="All contact allergens",
-        label_visibility="hidden",
-        placeholder="Type to search",
-        options=ALLERGEN_LIST,
-    )
-
+    selected_allergens = render_allergen_tab()
 with tab2:
-    st.subheader("2. Scan the product ingredients")
-
-    uploaded_file = st.file_uploader(
-        label="Take picture of ingredients list",
-        label_visibility="hidden",
-        type=["jpg", "jpeg", "png"],
-    )
-
-    if uploaded_file is not None:
-        input_image = Image.open(uploaded_file)
-
-        with st.spinner("Scanning image"):
-            result = reader.readtext(
-                input_image, width_ths=0, adjust_contrast=0.5, paragraph=False
-            )
-            img = np.array(input_image)
-
-            DELIMITERS = {",", ";", ":"}
-
-            outputocr = ocr_to_word_records(result)
-            ingredients = word_records_to_ingredient_records(outputocr)
-            normalised_allergens = normalize_allergen_list(selected_allergens)
-            ingredients_match = mark_matching_ingredients(
-                ingredients, normalised_allergens
-            )
-            output_img = draw_matched_ingredients(img, ingredients_match)
-
-            st.image(output_img)
+    render_scan_tab(reader, selected_allergens)
