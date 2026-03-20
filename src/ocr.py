@@ -4,7 +4,7 @@ import streamlit as st
 
 # cache so we don't have to reload it everytime a change is made (new allergen selected etc)
 @st.cache_resource
-def load_ocr_model(model_dir, languages):
+def load_ocr_model(model_dir):
     reader = easyocr.Reader(
         "en",
         model_storage_directory=str(model_dir),

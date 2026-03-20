@@ -93,6 +93,9 @@ def render_scan_tab(reader, selected_allergens):
                 st.markdown("### :color[None]{foreground='#215F9A'}")
 
 
+# MAIN #
+reader = load_ocr_model(MODEL_DIR)
+
 tab1, tab2 = st.tabs(["1. Select your allergens", "2. Scan ingredients"])
 
 with tab1:
