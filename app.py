@@ -15,17 +15,7 @@ from src.matching import flag_matching_ingredients, normalize_allergen_list
 from src.ocr import load_ocr_model, ocr_to_word_records, run_ocr
 from src.preprocessing import normalize_text, word_records_to_ingredient_records
 
-
-@st.cache_resource
-def load_ocr_model():
-    model_path = "models/easyocr"
-    reader = easyocr.Reader(["en"], model_storage_directory=model_path, gpu=False)
-    return reader
-
-
-reader = load_ocr_model()
-
-st.set_page_config(page_title="AllergyScanner", page_icon="assets/logo.png")
+st.set_page_config(page_title="AllergyScanner", page_icon=str(FAVICON_PATH))
 
 col1, col2 = st.columns([5, 1], vertical_alignment="center")
 
