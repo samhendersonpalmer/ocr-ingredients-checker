@@ -17,22 +17,23 @@ from src.preprocessing import normalize_text, word_records_to_ingredient_records
 
 st.set_page_config(page_title="AllergyScanner", page_icon=str(FAVICON_PATH))
 
-col1, col2 = st.columns([5, 1], vertical_alignment="center")
 
-with col1:
-    st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
-with col2:
-    st.image("assets/logo.png", width=90)
+def render_header():
+    col1, col2 = st.columns([5, 1], vertical_alignment="center")
 
+    with col1:
+        st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
 
-st.markdown(
-    "Scan product ingredients to check if it contains one of your contact allergens or its cousins. Built by "
-    "[samhendersonpalmer](https://www.linkedin.com/in/samhendersonpalmer/) - "
-    "view project source code on "
-    "[GitHub](https:/github.com/samhendersonpalmer/ocr-ingredients-checker)"
-)
+    with col2:
+        st.image(str(LOGO_PATH), width=90)
 
-st.space()
+    st.markdown(
+        "Scan product ingredients to check if it contains one of your contact allergens "
+        "or its cousins. Built by "
+        "[samhendersonpalmer](https://www.linkedin.com/in/samhendersonpalmer/) - "
+        "view project source code on "
+        "[GitHub](https://github.com/samhendersonpalmer/ocr-ingredients-checker)"
+    )
 
 
 def normalize_text(text):
