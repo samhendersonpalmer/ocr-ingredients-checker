@@ -11,6 +11,8 @@ from src.preprocessing import normalize_text, word_records_to_ingredient_records
 
 st.set_page_config(page_title="AllergyScanner", page_icon=str(FAVICON_PATH))
 
+allergen_names = [item["item_name"] for item in ALLERGEN_LIST]
+
 
 def render_header():
     col1, col2 = st.columns([5, 1], vertical_alignment="center")
@@ -37,7 +39,7 @@ def render_allergen_tab():
         label="All contact allergens",
         label_visibility="hidden",
         placeholder="Type to search",
-        options=ALLERGEN_LIST,
+        options=allergen_names,
     )
 
     return selected_allergens
