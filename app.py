@@ -5,7 +5,7 @@ from PIL import Image
 # Load custom modules
 from src.config import ALLERGEN_LIST, DELIMITERS, FAVICON_PATH, LOGO_PATH, MODEL_DIR
 from src.annotate import annotate_matched_ingredients
-from src.matching import flag_matching_ingredients, normalize_allergen_list
+from src.matching import flag_matching_ingredients
 from src.ocr import load_ocr_model, ocr_to_word_records, run_ocr
 from src.preprocessing import normalize_text, word_records_to_ingredient_records
 
@@ -66,10 +66,18 @@ def render_scan_tab(selected_allergens):
 
         word_records = ocr_to_word_records(result, normalize_text)
         ingredients = word_records_to_ingredient_records(word_records, DELIMITERS)
-        normalized_allergens = normalize_allergen_list(
-            selected_allergens, normalize_text
+
+        # Return lists of alternative names for selected allergens
+        selected_allergen_list = [
+            item for item in ALLERGEN_LIST if item["item_name"] in selected_allergens
+        ]
+        # normalise
+        for item in selected_allergen_list:
+            item["allergens"] = [a.lower().strip() for a in item["allergens"]]
+
+        ingredients_match = flag_matching_ingredients(
+            ingredients, selected_allergen_list
         )
-        ingredients_match = flag_matching_ingredients(ingredients, normalized_allergens)
         output_img = annotate_matched_ingredients(img, ingredients_match)
 
         col1, col2 = st.columns([2, 2], vertical_alignment="top")
