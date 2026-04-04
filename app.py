@@ -90,18 +90,25 @@ def render_scan_tab(selected_allergens):
 
             for ingredient in ingredients_match:
                 if ingredient["is_match"]:
-                    # Incase matched_allergen key doesn't exist return empty list
-                    for allergen in ingredient.get("matched_allergens", []):
-                        if allergen not in positive_allergens:
-                            positive_allergens.append(allergen)
+                    matched = ingredient.get("matched_allergens", [])
+                    parents = ingredient.get("parent_allergen", [])
+                    urls = ingredient.get("url", [])
 
-            st.markdown("### Potential allergens detected:")
+                    for allergen, parent, url in zip(matched, parents, urls):
+                        display_text = (
+                            f"{allergen} (AKA your allergen, [{parent}]({url}))"
+                        )
+
+                        if display_text not in positive_allergens:
+                            positive_allergens.append(display_text)
+
+            st.markdown("### Potential allergens:")
 
             if positive_allergens:
                 for allergen in positive_allergens:
-                    st.markdown(f"### - :color[{allergen}]{{foreground='#bd500c'}}")
+                    st.markdown(f"- :color[{allergen}]{{foreground='#bd500c'}}")
             else:
-                st.markdown("### :color[None]{foreground='#215F9A'}")
+                st.markdown(" :color[None detected]{foreground='#215F9A'}")
 
 
 # MAIN #
