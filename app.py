@@ -45,12 +45,12 @@ def render_allergen_tab():
     return selected_allergens
 
 
-def render_scan_tab(selected_allergens):
+def render_scan_tab(selected_allergens, reader):
     st.subheader("2. Scan the product ingredients")
 
     uploaded_file = st.file_uploader(
         label="Take picture of ingredients list",
-        max_upload_size=5,
+        max_upload_size=50,
         label_visibility="hidden",
         type=["jpg", "jpeg", "png"],
     )
@@ -61,7 +61,6 @@ def render_scan_tab(selected_allergens):
     input_image = Image.open(uploaded_file)
 
     with st.spinner("Scanning image"):
-        reader = load_ocr_model(MODEL_DIR)
         result = run_ocr(reader, input_image)
         img = np.array(input_image)
 
@@ -117,9 +116,11 @@ render_header()
 
 st.space()
 
+reader = load_ocr_model(MODEL_DIR)
+
 tab1, tab2 = st.tabs(["1. Select your allergens", "2. Scan ingredients"])
 
 with tab1:
     selected_allergens = render_allergen_tab()
 with tab2:
-    render_scan_tab(selected_allergens)
+    render_scan_tab(selected_allergens, reader)
