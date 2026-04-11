@@ -50,7 +50,7 @@ def render_scan_tab(selected_allergens, reader):
 
     uploaded_file = st.file_uploader(
         label="Take picture of ingredients list",
-        max_upload_size=5,
+        max_upload_size=50,
         label_visibility="hidden",
         type=["jpg", "jpeg", "png"],
     )
