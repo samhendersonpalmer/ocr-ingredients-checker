@@ -59,10 +59,14 @@ def render_scan_tab(selected_allergens, reader):
         return
 
     input_image = Image.open(uploaded_file)
+    input_image.thumbnail((1400, 1400))
 
     with st.spinner("Scanning image"):
-        result = run_ocr(reader, input_image)
-        img = np.array(input_image)
+        img = np.asarray(input_image)
+        input_image.close()
+        del input_image
+
+        result = run_ocr(reader, img)
 
         word_records = ocr_to_word_records(result, normalize_text)
         ingredients = word_records_to_ingredient_records(word_records, DELIMITERS)
@@ -79,11 +83,13 @@ def render_scan_tab(selected_allergens, reader):
             ingredients, selected_allergen_list
         )
         output_img = annotate_matched_ingredients(img, ingredients_match)
+        del img
 
         col1, col2 = st.columns([2, 2], vertical_alignment="top")
 
         with col1:
             st.image(output_img)
+            del output_img
 
         with col2:
             positive_allergens = []
