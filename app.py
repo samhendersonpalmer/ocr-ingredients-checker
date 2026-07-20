@@ -21,7 +21,7 @@ def render_header():
         st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
 
     with col2:
-        st.image(str(LOGO_PATH), width=90)
+        st.image(str(LOGO_PATH), output_format="PNG")
 
     st.markdown(
         "Scan product ingredients to check if it contains one of your contact allergens "
@@ -33,7 +33,7 @@ def render_header():
 
 
 def render_allergen_tab():
-    st.subheader("1. Select your contact allergens")
+    st.subheader("Select your contact allergens")
 
     selected_allergens = st.multiselect(
         label="All contact allergens",
@@ -46,7 +46,7 @@ def render_allergen_tab():
 
 
 def render_scan_tab(selected_allergens, reader):
-    st.subheader("2. Scan the product ingredients")
+    st.subheader("Scan the product ingredients")
 
     uploaded_file = st.file_uploader(
         label="Take picture of ingredients list",
@@ -120,13 +120,15 @@ def render_scan_tab(selected_allergens, reader):
 # MAIN #
 render_header()
 
+st.warning(
+    "This app is for information purposes only, and should not be used as a substitute for the personal advice received when consulting a doctor, nurse or health professional."
+)
+
 st.space()
+
+with st.sidebar:
+    selected_allergens = render_allergen_tab()
 
 reader = load_ocr_model(MODEL_DIR)
 
-tab1, tab2 = st.tabs(["1. Select your allergens", "2. Scan ingredients"])
-
-with tab1:
-    selected_allergens = render_allergen_tab()
-with tab2:
-    render_scan_tab(selected_allergens, reader)
+render_scan_tab(selected_allergens, reader)
