@@ -129,6 +129,20 @@ st.space()
 with st.sidebar:
     selected_allergens = render_allergen_tab()
 
+    st.space("medium")
+
+    st.markdown(
+        """
+    <div style="text-align: center;">
+        <a href="https://www.buymeacoffee.com/samhendersonpalmer" target="_blank">
+            <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" 
+                alt="Buy Me A Coffee" height="41" width="174">
+        </a>
+    </div>
+    """,
+        unsafe_allow_html=True,
+    )
+
 reader = load_ocr_model(MODEL_DIR)
 
 render_scan_tab(selected_allergens, reader)
