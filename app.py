@@ -9,19 +9,19 @@ from src.matching import flag_matching_ingredients
 from src.ocr import load_ocr_model, ocr_to_word_records, run_ocr
 from src.preprocessing import normalize_text, word_records_to_ingredient_records
 
-st.set_page_config(page_title="AllergyScanner", page_icon=str(FAVICON_PATH))
+st.set_page_config(
+    page_title="AllergyScanner",
+    page_icon=str(FAVICON_PATH),
+    initial_sidebar_state="expanded",
+    menu_items=None,
+)
 
 allergen_names = [item["item_name"] for item in ALLERGEN_LIST]
 
 
 def render_header():
-    col1, col2 = st.columns([5, 1], vertical_alignment="center")
 
-    with col1:
-        st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
-
-    with col2:
-        st.image(str(LOGO_PATH), output_format="SVG", width=120)
+    st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
 
     st.markdown(
         "Scan product ingredients to check if it contains one of your contact allergens "
