@@ -1,6 +1,6 @@
 import numpy as np
 import streamlit as st
-from PIL import Image
+from PIL import Image, ImageOps
 
 # Load custom modules
 from src.config import ALLERGEN_LIST, DELIMITERS, FAVICON_PATH, LOGO_PATH, MODEL_DIR
@@ -21,7 +21,7 @@ def render_header():
         st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
 
     with col2:
-        st.image(str(LOGO_PATH), output_format="PNG")
+        st.image(str(LOGO_PATH), output_format="SVG", width=120)
 
     st.markdown(
         "Scan product ingredients to check if it contains one of your contact allergens "
@@ -59,6 +59,9 @@ def render_scan_tab(selected_allergens, reader):
         return
 
     input_image = Image.open(uploaded_file)
+
+    ImageOps.exif_transpose(input_image, in_place=True)
+
     input_image.thumbnail((1400, 1400))
 
     with st.spinner("Scanning image"):
