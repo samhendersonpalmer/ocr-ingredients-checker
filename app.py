@@ -21,7 +21,7 @@ def render_header():
         st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
 
     with col2:
-        st.image(str(LOGO_PATH), output_format="PNG")
+        st.image(str(LOGO_PATH), output_format="SVG", width=120)
 
     st.markdown(
         "Scan product ingredients to check if it contains one of your contact allergens "
