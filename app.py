@@ -15,13 +15,8 @@ allergen_names = [item["item_name"] for item in ALLERGEN_LIST]
 
 
 def render_header():
-    col1, col2 = st.columns([5, 1], vertical_alignment="center")
 
-    with col1:
-        st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
-
-    with col2:
-        st.image(str(LOGO_PATH), output_format="SVG", width=120)
+    st.markdown('## Allergy:color[Scanner]{foreground = "#215F9A"}')
 
     st.markdown(
         "Scan product ingredients to check if it contains one of your contact allergens "
